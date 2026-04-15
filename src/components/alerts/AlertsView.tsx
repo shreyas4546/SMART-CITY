@@ -11,6 +11,13 @@ interface AlertsViewProps {
 }
 
 export function AlertsView({ alerts, markAsRead }: AlertsViewProps) {
+  // Sort alerts: unread first, then high priority first
+  const sortedAlerts = [...alerts].sort((a, b) => {
+    if (a.read !== b.read) return a.read ? 1 : -1;
+    if (a.priority !== b.priority) return a.priority === 'high' ? -1 : 1;
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -24,19 +31,19 @@ export function AlertsView({ alerts, markAsRead }: AlertsViewProps) {
       <Card>
         <CardContent className="p-0">
           <div className="divide-y divide-white/10">
-            {alerts.length === 0 ? (
+            {sortedAlerts.length === 0 ? (
               <div className="p-8 text-center text-white/50 flex flex-col items-center justify-center">
                 <CheckCircle2 className="w-12 h-12 mb-4 opacity-20" />
                 <p>No active alerts. System is operating normally.</p>
               </div>
             ) : (
-              alerts.map((alert, index) => (
+              sortedAlerts.map((alert, index) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   key={alert.id} 
-                  className={`p-4 flex items-start gap-4 transition-colors hover:bg-white/5 ${!alert.read ? 'bg-white/[0.02]' : 'opacity-60'}`}
+                  className={`p-4 flex items-start gap-4 transition-colors hover:bg-white/5 ${!alert.read ? 'bg-white/[0.02]' : 'opacity-60'} ${alert.priority === 'high' && !alert.read ? 'border-l-2 border-red-500' : ''}`}
                 >
                   <div className="mt-1">
                     {alert.priority === 'high' ? (

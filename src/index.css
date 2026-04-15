@@ -1,1 +1,69 @@
 @import "tailwindcss";
+
+@theme {
+  --animate-dash: dash 20s linear infinite;
+  --animate-ambient-drift: ambient-drift 15s ease-in-out infinite alternate;
+  --animate-glow-pulse: glow-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+@keyframes ambient-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(5%, 5%) scale(1.05);
+  }
+  100% {
+    transform: translate(-5%, -5%) scale(0.95);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 15px currentColor;
+  }
+  50% {
+    opacity: .5;
+    box-shadow: 0 0 5px currentColor;
+  }
+}
+
+/* Custom scrollbar for dark theme */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Leaflet map dark theme overrides */
+.leaflet-container {
+  background: #050505 !important;
+}
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: rgba(10, 10, 10, 0.9) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white !important;
+}
+.leaflet-popup-content h4 {
+  color: white !important;
+}
+.leaflet-popup-content p {
+  color: rgba(255, 255, 255, 0.6) !important;
+}

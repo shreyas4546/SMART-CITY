@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Bin, Truck } from '@/src/types';
+import { mockZones } from '@/src/lib/mockData';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -14,10 +15,16 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const createCustomIcon = (color: string) => {
+const createCustomIcon = (color: string, status: string) => {
+  const isCritical = status === 'critical';
+  const pulseHtml = isCritical ? `<div class="absolute inset-0 rounded-full animate-ping opacity-75" style="background-color: ${color};"></div>` : '';
+  
   return L.divIcon({
-    className: 'custom-icon',
-    html: `<div style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px ${color};"></div>`,
+    className: 'custom-icon border-0 bg-transparent',
+    html: `<div class="relative flex items-center justify-center w-4 h-4">
+             ${pulseHtml}
+             <div class="relative w-3 h-3 rounded-full border border-white/50 shadow-[0_0_12px_${color}]" style="background-color: ${color};"></div>
+           </div>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });
@@ -72,6 +79,42 @@ export function LiveMap({ bins, trucks }: LiveMapProps) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         
+        {/* Zone Intelligence Heatmap */}
+        {mockZones.map(zone => {
+          // Calculate average fill level for the zone
+          const zoneBins = bins.filter(b => b.zoneId === zone.id);
+          const avgFill = zoneBins.length > 0 
+            ? zoneBins.reduce((acc, b) => acc + b.fillLevel, 0) / zoneBins.length 
+            : 0;
+          
+          let color = '#22c55e'; // green
+          if (avgFill > 75) color = '#ef4444'; // red
+          else if (avgFill > 50) color = '#eab308'; // yellow
+
+          return (
+            <Circle
+              key={zone.id}
+              center={zone.center}
+              radius={zone.radius}
+              pathOptions={{
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.1,
+                weight: 1,
+                dashArray: '5, 5'
+              }}
+            >
+              <Popup>
+                <div className="p-1">
+                  <h4 className="font-bold text-gray-900">{zone.name}</h4>
+                  <p className="text-sm text-gray-600">Avg Fill Level: {Math.round(avgFill)}%</p>
+                  <p className="text-xs text-gray-500">Bins in zone: {zoneBins.length}</p>
+                </div>
+              </Popup>
+            </Circle>
+          );
+        })}
+
         {bins.map(bin => {
           let color = '#22c55e'; // green
           if (bin.status === 'warning') color = '#eab308'; // yellow
@@ -81,7 +124,7 @@ export function LiveMap({ bins, trucks }: LiveMapProps) {
             <Marker 
               key={bin.id} 
               position={[bin.lat, bin.lng]} 
-              icon={createCustomIcon(color)}
+              icon={createCustomIcon(color, bin.status)}
             >
               <Popup className="custom-popup">
                 <div className="p-1">
@@ -130,14 +173,25 @@ export function LiveMap({ bins, trucks }: LiveMapProps) {
         ))}
 
         {route.length > 1 && (
-          <Polyline 
-            positions={route} 
-            color="#3b82f6" 
-            weight={4} 
-            opacity={0.8} 
-            dashArray="10, 10"
-            className="animate-pulse"
-          />
+          <>
+            {/* Glow effect line */}
+            <Polyline 
+              positions={route} 
+              color="#3b82f6" 
+              weight={8} 
+              opacity={0.3} 
+              className="animate-pulse"
+            />
+            {/* Core line */}
+            <Polyline 
+              positions={route} 
+              color="#60a5fa" 
+              weight={3} 
+              opacity={1} 
+              dashArray="10, 10"
+              className="animate-[dash_20s_linear_infinite]"
+            />
+          </>
         )}
       </MapContainer>
 

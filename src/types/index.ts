@@ -9,6 +9,21 @@ export interface Bin {
   lastUpdated: string;
   locationName: string;
   predictedOverflowHours: number; // Advanced feature
+  zoneId: string;
+}
+
+export interface Zone {
+  id: string;
+  name: string;
+  center: [number, number];
+  radius: number;
+}
+
+export interface ActivityEvent {
+  id: string;
+  message: string;
+  timestamp: string;
+  type: 'warning' | 'info' | 'critical' | 'success';
 }
 
 export interface Alert {

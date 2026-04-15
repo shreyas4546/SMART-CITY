@@ -14,16 +14,17 @@ interface StatCardProps {
 
 export function StatCard({ title, value, icon: Icon, trend, trendUp, color = 'blue' }: StatCardProps) {
   const colorStyles = {
-    blue: "text-blue-400 bg-blue-500/10 border-blue-500/20 shadow-[0_0_15px_rgba(37,99,235,0.15)]",
-    green: "text-green-400 bg-green-500/10 border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]",
-    red: "text-red-400 bg-red-500/10 border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)]",
-    yellow: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.15)]",
+    blue: "text-blue-400 bg-blue-500/10 border-blue-500/20 shadow-[0_0_15px_rgba(37,99,235,0.15)] group-hover:shadow-[0_0_25px_rgba(37,99,235,0.3)]",
+    green: "text-green-400 bg-green-500/10 border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.15)] group-hover:shadow-[0_0_25px_rgba(34,197,94,0.3)]",
+    red: "text-red-400 bg-red-500/10 border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)] group-hover:shadow-[0_0_25px_rgba(239,68,68,0.3)]",
+    yellow: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.15)] group-hover:shadow-[0_0_25px_rgba(234,179,8,0.3)]",
   };
 
   return (
-    <Card className="overflow-hidden relative group">
-      <div className={cn("absolute top-0 left-0 w-1 h-full", colorStyles[color].split(' ')[0].replace('text-', 'bg-'))} />
-      <CardContent className="p-6">
+    <Card className="overflow-hidden relative group transition-all duration-300 hover:-translate-y-1">
+      <div className={cn("absolute top-0 left-0 w-1 h-full transition-all duration-300 group-hover:w-1.5", colorStyles[color].split(' ')[0].replace('text-', 'bg-'))} />
+      <div className={cn("absolute -top-10 -right-10 w-32 h-32 blur-[50px] rounded-full opacity-20 transition-opacity duration-500 group-hover:opacity-40", colorStyles[color].split(' ')[0].replace('text-', 'bg-'))} />
+      <CardContent className="p-6 relative z-10">
         <div className="flex justify-between items-start">
           <div>
             <p className="text-sm font-medium text-white/50 mb-1">{title}</p>
